@@ -1180,6 +1180,9 @@ Text::Haml - Haml Perl implementation
 
     $html = $haml->render('= user', user => 'friend'); # <div>friend</div>
 
+    # Use Haml file
+    $html = $haml->render_file('tmpl/index.haml', user => 'friend');
+
 =head1 DESCRIPTION
 
 L<Text::Haml> implements Haml
@@ -1309,6 +1312,24 @@ Holds the last error.
 
 Holds parsed haml elements.
 
+=head2 C<path>
+
+Holds path of Haml templates. Current directory is a default.
+If you want to set several paths, arrayref can also be set up.
+This way is the same as L<Text::Xslate>.
+
+=head2 C<cache>
+
+Holds cache level of Haml templates. 1 is a default.
+0 means "Not cached", 1 means "Checked template mtime" and 2 means "Used always cached".
+This way is the same as L<Text::Xslate>.
+
+=head2 C<cache_dir>
+
+Holds cache directory of Haml templates. $ENV{HOME}/.text_haml_cache is a default.
+Unless $ENV{HOME}, File::Spec->tempdir was used.
+This way is the same as L<Text::Xslate>.
+
 =head1 METHODS
 
 =head2 C<new>
@@ -1361,9 +1382,10 @@ Renders Haml string. Returns undef on error. See error attribute.
 
 =head2 C<render_file>
 
-    my $text = $haml->render_file('foo.haml');
+    my $text = $haml->render_file('foo.haml', var => 'hello');
 
 A helper method that loads a file and passes it to the render method.
+Since "%____vars" is used internally, you cannot use this as parameter name.
 
 =head1 PERL SPECIFIC IMPLEMENTATION ISSUES
 
