@@ -980,7 +980,6 @@ sub render {
     return $self->interpret(@_);
 }
 
-
 sub render_file {
     my $self = shift;
     my $path = shift;
@@ -993,11 +992,11 @@ sub render_file {
         my $cache_dir = $self->_cache_dir;
         # Set cache path
         $self->_cache_path($path, $cache_dir);
-    }
 
-    # Exists same cache file ?
-    if (-e $self->cache_path && $self->_eq_mtime) {
-        return $self->_interpret_cached;
+        # Exists same cache file ?
+        if (-e $self->cache_path && $self->_eq_mtime) {
+            return $self->_interpret_cached(@_);
+        }
     }
 
     # Open file
@@ -1028,9 +1027,6 @@ sub render_file {
             }
         }
     }
-    # Clear path property
-    $self->fullpath(undef);
-    $self->cache_path(undef);
 
     return $output;
 }
@@ -1087,7 +1083,7 @@ sub _eq_mtime {
 
     my $file = IO::File->new;
     $file->open($self->cache_path, 'r') or return;
-    $file->sysread(my $cache_mtime, 11); # Read file head, '#xxxxxxxx'
+    $file->sysread(my $cache_mtime, length('#xxxxxxxxxx'));
     $file->close;
     my $orig_mtime = '#'.(stat($self->fullpath))[9];
     return $cache_mtime eq $orig_mtime;

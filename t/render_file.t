@@ -31,7 +31,7 @@ my $haml = Text::Haml->new(
 	cache => 1,
 );
 
-my $output = $haml->render_file('render.haml');
+my $output = $haml->render_file('render.haml', title => 'RENDER_FILE_TEST');
 $file->open(File::Spec->catfile('t', 'render1.html'), 'r') or die $!;
 my $expected1 = do { local $/; <$file> };
 $file->close;
@@ -45,14 +45,13 @@ my $cache_path = File::Spec->catfile($cache_dir, 'render.haml.pl');
 ok(-f $cache_path);
 cmp_ok(-s $cache_path, '>', 1);
 
-
-# haml template
-$file->open(File::Spec->catfile('t', 'render2.haml'), 'r') or die $!;
-my $haml2_content = do { local $/; <$file> };
-$file->close;
 # overwrite haml file for test
 $file->open($render_haml, 'w') or die $!;
-print $file $haml2_content;
+print $file <<'EOF';
+%p.title= $title
+%p
+  TEST
+EOF
 $file->close;
 
 # change mtime
@@ -65,7 +64,7 @@ $haml = Text::Haml->new(
 	cache_dir => $tempdir,
 	cache => 2, # using already exists cache
 );
-$output = $haml->render_file('render.haml');
+$output = $haml->render_file('render.haml', title => 'RENDER_FILE_TEST');
 # same output test 1
 is($output, $expected1);
 
@@ -74,10 +73,11 @@ $haml = Text::Haml->new(
 	cache_dir => $tempdir,
 	cache => 1,
 );
-$output = $haml->render_file('render.haml');
+$output = $haml->render_file('render.haml', title => 'RENDER_FILE_TEST');
 is($output, <<'EOF');
+<p class='title'>RENDER_FILE_TEST</p>
 <p>
-  Read the tutorial for more information.
+  TEST
 </p>
 EOF
 
