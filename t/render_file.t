@@ -39,7 +39,7 @@ is($output, $expected1);
 
 my $uri_escaped = URI::Escape::uri_escape($tempdir);
 my $cache_dir = File::Spec->catdir($tempdir, $uri_escaped);
-diag($cache_dir);
+note($cache_dir);
 ok(-d $cache_dir);
 my $cache_path = File::Spec->catfile($cache_dir, 'render.haml.pl');
 ok(-f $cache_path);
