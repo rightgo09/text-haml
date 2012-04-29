@@ -5,7 +5,7 @@ use warnings;
 
 use Text::Haml;
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 my $haml = Text::Haml->new;
 
@@ -496,6 +496,71 @@ is_deeply(
             name  => 'preserve',
             text  => "Hello\n\nthere.",
             line  => ":preserve\n  Hello\n\n  there."
+        },
+        {   type  => 'text',
+            level => 0,
+            line  => ''
+        }
+    ]
+);
+
+# tab indent
+$haml->parse(<<'EOF');
+%gee
+	.class.class2#id{foo => 'bar'}
+		%baz= 1 + 2
+			Wow this is cool!
+			%a{href => 'foo', name => helper} Link
+			%a(href="foo" name=helper) Link
+EOF
+is_deeply(
+    $haml->tape,
+    [   {type => 'tag', level => 0, name => 'gee', line => '%gee'},
+        {   type  => 'tag',
+            level => 2,
+            name  => 'div',
+            class => [qw/class class2/],
+            id    => 'id',
+            attrs => [foo => {type => 'text', text => 'bar'}],
+            line  => ".class.class2#id{foo => 'bar'}"
+        },
+        {   type  => 'tag',
+            level => 4,
+            name  => 'baz',
+            expr  => 1,
+            text  => '1 + 2',
+            line  => '%baz= 1 + 2'
+        },
+        {   type  => 'text',
+            level => 6,
+            text  => 'Wow this is cool!',
+            line  => 'Wow this is cool!'
+        },
+        {   type  => 'tag',
+            level => 6,
+            name  => 'a',
+            attrs => [
+                href => {type => 'text', text => 'foo'},
+                name => {
+                    type => 'expr',
+                    text => 'helper'
+                }
+            ],
+            text => 'Link',
+            line => "%a{href => 'foo', name => helper} Link"
+        },
+        {   type  => 'tag',
+            level => 6,
+            name  => 'a',
+            attrs => [
+                href => {type => 'text', text => 'foo'},
+                name => {
+                    type => 'expr',
+                    text => 'helper'
+                }
+            ],
+            text => 'Link',
+            line => q/%a(href="foo" name=helper) Link/
         },
         {   type  => 'text',
             level => 0,

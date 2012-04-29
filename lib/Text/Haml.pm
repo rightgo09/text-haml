@@ -165,7 +165,8 @@ sub parse {
 
     $self->tape([]);
 
-    my $level_token    = quotemeta ' ';
+    my $level_token_space = quotemeta ' ';
+    my $level_token_tab   = "\t";
     my $escape_token   = quotemeta '&';
     my $unescape_token = quotemeta '!';
     my $expr_token     = quotemeta '=';
@@ -199,7 +200,8 @@ sub parse {
     my $multiline_token = quotemeta '|';
 
     my $tag_name = qr/([^
-        $level_token
+        $level_token_space
+        $level_token_tab
         $attributes_start
         $attributes_start2
         $class_start
@@ -220,8 +222,11 @@ sub parse {
     for (my $i = 0; $i < @lines; $i++) {
         my $line = $lines[$i];
 
-        if ($line =~ s/^($level_token+)//) {
+        if ($line =~ s/^($level_token_space+)//) {
             $level = length $1;
+        }
+        elsif ($line =~ s/^($level_token_tab+)//) {
+            $level = (length $1) * 2;
         }
         else {
             $level = 0;
